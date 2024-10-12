@@ -1,5 +1,11 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setUser,
+  setLoading,
+  setError as setUserError,
+} from "../../../redux/features/user/userSlice.js"
 import useApi from "../../../hooks/useApi";
 
 const LoginSignupForm = ({ page }) => {
@@ -12,14 +18,16 @@ const LoginSignupForm = ({ page }) => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { sendRequest, loading } = useApi();
-
+  const dispatch = useDispatch();
+  const {loading: reduxLoading} = useSelector(
+    (state) => state.user
+  );
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     if (page === "signup" && formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
@@ -27,17 +35,23 @@ const LoginSignupForm = ({ page }) => {
     }
 
     try {
+      dispatch(setLoading(true));
       const response = await sendRequest(
         `/server/v1/api/user/${page}`,
         "POST",
         formData
       );
-      console.log(response);
+
       if (response.error) throw new Error(response.error);
 
-      console.log("Form submitted:", formData);
-      navigate("/dashboard");
+      dispatch(
+       setUser(response)
+      );
+      navigate("/profile");
     } catch (err) {
+      dispatch(
+        setUserError(err.message)
+      );
       setError(err.message);
     }
   };
@@ -117,7 +131,7 @@ const LoginSignupForm = ({ page }) => {
         <button
           type="submit"
           className="w-full bg-blue-500 py-2 rounded-md mt-2 flex justify-center gap-3"
-          disabled={loading}
+          disabled={loading || reduxLoading}
         >
           {loading && (
             <div className="inset-0 flex items-center justify-center ml-2">
