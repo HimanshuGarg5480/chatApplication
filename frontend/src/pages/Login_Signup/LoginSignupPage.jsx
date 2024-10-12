@@ -6,7 +6,7 @@ import logo from "../../assets/Chat_Application-logo.png";
 import LoginSignupForm from "./components/LoginSignupForm.jsx";
 import { useLocation} from "react-router-dom";
 
-const LoginPage = () => {
+const LoginSignupPage = () => {
   const location = useLocation();
   
   // Split the path and get the last part
@@ -40,4 +40,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default LoginSignupPage;
