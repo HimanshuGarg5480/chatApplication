@@ -1,6 +1,7 @@
 import User from "../model/user.model.js";
 import bcrypt from "bcrypt";
 import generateTokenAndSetCookie from "../utils/generateToken.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const signupUser = async (req, res) => {
   try {
@@ -105,4 +106,56 @@ const authCheck = async (req, res) => {
   return res.json({ authenticated: true, user: req.user });
 };
 
-export { signupUser, loginUser, logoutUser, getUserProfile, authCheck };
+const updateProfile = async (req, res) => {
+  try {
+    const { bio } = req.body;
+    const profilePic = req.file?.path;
+
+    let userProfileImage;
+    if (profilePic) {
+      userProfileImage = await uploadOnCloudinary(profilePic);
+      if (!userProfileImage) {
+        return res.status(500).json({ error: "Failed to upload image" });
+      }
+    }
+    let updatedFields = userProfileImage
+      ? { profilePic: userProfileImage?.url, bio }
+      : { bio };
+    const userId = req.user._id;
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { profilePic: userProfileImage?.url, bio }, // Update fields
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    return res.json({
+      message: "Profile updated successfully",
+      user: {
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        username: updatedUser.username,
+        bio: updatedUser.bio,
+        profilePic: updatedUser.profilePic,
+      },
+    });
+  } catch (error) {
+    console.error("Error in updateProfile:", error);
+    return res
+      .status(500)
+      .json({ error: "An error occurred while updating the profile" });
+  }
+};
+
+export {
+  signupUser,
+  loginUser,
+  logoutUser,
+  getUserProfile,
+  authCheck,
+  updateProfile,
+};
