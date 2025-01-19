@@ -1,6 +1,10 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { ImCross } from "react-icons/im";
+import defaultUserPic from "../assets/defaultUserPic.jpg";
+import useApi from "../hooks/useApi";
+import { setUser } from "../redux/features/user/userSlice.js";
+import { closeProfile } from "../redux/features/user/ProfileSlice.js";
 
 const EditSvg = () => {
   return (
@@ -17,39 +21,40 @@ const EditSvg = () => {
 
 const Profile = () => {
   const [editShow, setEditShow] = useState(false);
+  const { user } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const handleToggleProfile = () => {
+    dispatch(closeProfile());
+  };
   return (
     <div className="absolute h-screen w-screen bg-black top-0 left-0 bg-opacity-60 flex justify-center items-center">
       <div className="overflow-hidden rounded-xl border-2 border-gray-800 bg-gray-900 w-full sm:w-[70%] shadow-lg shadow-black">
         <div className="min-h-[8vh] bg-grey-100 bg-gray-700 sm:min-h-[10vh] md:min-h-[14vh] bg-pattern-banner bg-cover bg-no-repeat bg-center">
-          <div className="flex justify-end pr-5 pt-5 text-gray-300 cursor-pointer hover:text-gray-200">
+          <div className="flex justify-end pr-5 pt-5 text-gray-300 cursor-pointer hover:text-gray-200" onClick={handleToggleProfile}>
             <ImCross />
           </div>
         </div>
         <div className="-mt-12 flex flex-col gap-3 p-4 sm:-mt-14 md:-mt-16 lg:p-6">
           <div className="mx-auto">
             <div className="flex w-auto flex-col items-center flex-wrap gap-4">
-            <div className="h-20 w-20 rounded-full bg-yellow-200 text-center overflow-hidden">
-          <img
-          className="w-full"
-            src="https://lh3.googleusercontent.com/ogw/AF2bZygVqqURt7fSPlw7t2fWui2oEPyG3UdCxQWyygydjeri3j4=s32-c-mo"
-            alt="image"
-          />
-        </div>
+              <img
+                className="w-20 h-20 rounded-full object-cover"
+                src={user.profilePic || defaultUserPic}
+                alt="image"
+              />
+
               <div className="flex flex-col text-center gap-1">
                 <div className="flex items-center justify-center gap-1">
                   <span className="text-base font-semibold leading-6 text-grey-800 text-gray-50">
-                    Himanshu Garg
+                    {user.username}
                   </span>
                 </div>
                 <span className="text-sm font-medium leading-5 text-grey-500 text-gray-400">
-                  himanshu5480@gmail.com
+                  {user.email}
                 </span>
-                <div className="text-gray-400 mt-5 text-xs">
-                  ~ Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Ipsam quo quidem ullam itaque eveniet, temporibus commodi
-                  ducimus numquam id, quibusdam quia ut velit ratione odio
-                  laborum incidunt placeat aliquid sed!
-                </div>
+                {user.bio && (
+                  <div className="text-gray-400 mt-5 text-xs">~ {user.bio}</div>
+                )}
               </div>
             </div>
           </div>
@@ -61,8 +66,7 @@ const Profile = () => {
             className="mx-auto flex items-center gap-2 rounded-3xl bg-blue-500 px-5 py-[0.625rem] text-white hover:bg-blue-400 mb-2 cursor-pointer"
             onClick={(e) => {
               e.preventDefault();
-              console.log("Button clicked"); // Added log to check if the button is clicked
-              setEditShow(true); // This should update the state to show the form
+              setEditShow(true);
             }}
           >
             <EditSvg />
@@ -75,32 +79,57 @@ const Profile = () => {
 };
 
 const EditProfileForm = ({ setEditShow }) => {
-  const [image, setImage] = useState(null); // Added state for image
+  const dispatch = useDispatch();
+  const [image, setImage] = useState(null);
   const [bio, setBio] = useState(
-    "~ Lorem ipsum dolor sit amet consectetur adipisicing elit."
+    "Lorem ipsum dolor sit amet consectetur adipisicing elit."
   );
+  const [error, setError] = useState(null);
 
-  const handleSubmit = (e) => {
+  const { sendRequest, loading } = useApi();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission logic here
-    console.log({ image }); // Log the image file
+
+    const formData = new FormData();
+    if (image) formData.append("profilePic", image);
+    formData.append("bio", bio);
+
+    try {
+      const response = await sendRequest(
+        "/server/v1/api/user/update",
+        "POST",
+        formData
+      );
+      dispatch(setUser(response.user));
+    } catch (error) {
+      console.error("Error uploading the image", error.message);
+      setError("Failed to update profile. Please try again.");
+    }
+    setEditShow(false);
   };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {error && <div className="text-red-500">{error}</div>}
       <div className="flex items-center justify-center gap-4">
-        <div className=" rounded-full bg-yellow-200 text-center overflow-hidden">
+        <div className="">
           <img
-          className="w-16"
-            src="https://lh3.googleusercontent.com/ogw/AF2bZygVqqURt7fSPlw7t2fWui2oEPyG3UdCxQWyygydjeri3j4=s32-c-mo"
+            className="w-16 h-16 rounded-full object-cover"
+            src={
+              image ||
+              "https://lh3.googleusercontent.com/ogw/AF2bZygVqqURt7fSPlw7t2fWui2oEPyG3UdCxQWyygydjeri3j4=s32-c-mo"
+            }
             alt="image"
           />
         </div>
         <input
-          type="file" // Changed to file input for image upload
-          onChange={(e) => setImage(e.target.files[0])} // Set the image state
-          className="p-2 rounded-full border border-gray-600 bg-gray-800 text-gray-200 w-full"
-          accept="image/*" // Accept only image files
+          type="file"
+          onChange={(e) => {
+            setImage(e.target.files[0]);
+          }}
+          className="p-2 px-5 rounded-full border text-xs sm:text-sm border-gray-600 bg-gray-800 text-gray-200 w-[70%]"
+          accept="image/*"
         />
       </div>
       <textarea
@@ -109,15 +138,17 @@ const EditProfileForm = ({ setEditShow }) => {
         className="p-2 rounded border border-gray-600 bg-gray-800 text-gray-200"
         placeholder="Bio"
         rows="4"
+        maxLength={50} // Limit to 50 characters
       />
       <button
         type="submit"
-        className="bg-blue-500 text-white rounded p-2 hover:bg-blue-400"
-        onClick={(e) => {
-          e.preventDefault();
-          setEditShow(false);
-        }}
+        className="bg-blue-500 text-white rounded p-2 hover:bg-blue-400 flex gap-3 justify-center items-center"
       >
+        {loading && (
+          <div className="inset-0 flex items-center justify-center ml-2">
+            <div className="w-5 h-5 border-t-2 border-white border-solid rounded-full animate-spin"></div>
+          </div>
+        )}
         Save Changes
       </button>
     </form>

@@ -1,10 +1,15 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
 const useApi = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const sendRequest = useCallback(async (url, method = 'GET', body = null, headers = {}) => {
+  const sendRequest = async (
+    url,
+    method = "GET",
+    body = null,
+    headers = {}
+  ) => {
     setLoading(true);
     setError(null);
 
@@ -13,19 +18,18 @@ const useApi = () => {
         method,
         headers: {
           'Content-Type': 'application/json',
-          ...headers,
-        },
+          ...headers
+        }
       };
 
       if (body) {
         options.body = JSON.stringify(body);
       }
-
       const response = await fetch(url, options);
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'An error occurred');
+        throw new Error(data.error || "An error occurred");
       }
 
       setLoading(false);
@@ -35,7 +39,7 @@ const useApi = () => {
       setLoading(false);
       throw err;
     }
-  }, []);
+  };
 
   return { sendRequest, loading, error };
 };

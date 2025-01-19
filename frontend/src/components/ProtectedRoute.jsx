@@ -16,8 +16,6 @@ const ProtectedRoute = ({ children }) => {
     const checkAuth = async () => {
       try {
         const data = await sendRequest('/server/v1/api/user/authcheck', 'GET');
-        console.log(data)
-        
         if (data.authenticated) {
           setIsAuthenticated(data.authenticated);
           dispatch(

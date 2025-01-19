@@ -26,8 +26,8 @@ const LoginSignupPage = () => {
         </div>
       </div>
 
-      <div className="w-full h-full bg-[#020617] text-slate-100 flex flex-col items-center justify-center pt-4">
-        <div className="w-full flex flex-col items-center gap-3">
+      <div className="w-full h-full bg-[#020617] text-slate-100 flex flex-col items-center justify-center gap-2 pt-1">
+        <div className="w-full flex flex-col items-center gap-1">
           <div className="w-[40%] md:w-[25%] sm:w-[30%] lg:w-[30%]">
             <img className="w-full" src={logo} alt="" />
           </div>

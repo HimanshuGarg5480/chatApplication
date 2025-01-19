@@ -1,9 +1,11 @@
 import React from "react";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 import { Routes, Route } from "react-router-dom";
 import LoginSignupPage from "./pages/Login_Signup/LoginSignupPage";
 import Profile from "./components/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
-import ChatPage from "./pages/Chat/ChatPage"
+import ChatPage from "./pages/Chat/ChatPage";
 const App = () => {
   return (
     <div className="h-screen">
@@ -15,14 +17,13 @@ const App = () => {
           path="/"
           element={
             <ProtectedRoute>
-              <ChatPage/>
+              <ChatPage />
             </ProtectedRoute>
           }
         />
       </Routes>
+      <ToastContainer />
     </div>
-
-  //fields in profile components are hard coded, fix it
   );
 };
 

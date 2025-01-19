@@ -47,7 +47,7 @@ const LoginSignupForm = ({ page }) => {
       dispatch(
        setUser(response)
       );
-      navigate("/profile");
+      navigate("/");
     } catch (err) {
       dispatch(
         setUserError(err.message)
@@ -61,72 +61,76 @@ const LoginSignupForm = ({ page }) => {
       onSubmit={handleSubmit}
       className="bg-[#0F172A] rounded-lg py-4 px-4 h-fit flex flex-col"
     >
-      <div className="text-[1.5rem] font-bold leading-[2rem] tracking-[-2%] text-dark-100 dark:text-grey-50 lg:text-[2.25rem] lg:leading-[2.75rem]">
+      <div className="text-[1.4rem] font-bold leading-[2rem] tracking-[-2%] text-dark-100 dark:text-grey-50 lg:text-[2.25rem] lg:leading-[2rem]">
         <div>Hey! 👋</div>
         <div>
           Welcome to <span className="text-blue-500">Connectly</span>
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 mt-5 w-[90%] mx-auto">
+      <div className="flex flex-col gap-2 mt-2 w-[90%] mx-auto">
         {page === "signup" && (
-          <>
-            <label htmlFor="email" className="block -mb-3">
+          <div className="w-full">
+            <label htmlFor="email" className="block">
               Email
             </label>
             <input
               id="email"
-              className="rounded-md bg-[#1E293B] border border-[#334155] leading-10 pl-2"
+              className="rounded-md bg-[#1E293B] border border-[#334155] leading-10 pl-2 w-full"
               placeholder="Enter your email address"
               type="email"
               value={formData.email}
               onChange={handleChange}
               required
             />
-          </>
+          </div>
         )}
 
-        <label htmlFor="username" className="block -mb-3">
+        <div>
+        <label htmlFor="username" className="block ">
           Username
         </label>
         <input
           id="username"
-          className="rounded-md bg-[#1E293B] border border-[#334155] leading-10 pl-2"
+          className="rounded-md bg-[#1E293B] border border-[#334155] leading-10 pl-2 w-full"
           placeholder="Enter your username"
           type="text"
           value={formData.username}
           onChange={handleChange}
           required
         />
+        </div>
 
-        <label htmlFor="password" className="block -mb-3">
+        <div>
+        <label htmlFor="password" className="block ">
           Password
         </label>
         <input
           id="password"
-          className="rounded-md bg-[#1E293B] border border-[#334155] leading-10 pl-2"
+          className="rounded-md bg-[#1E293B] border border-[#334155] leading-10 pl-2 w-full"
           placeholder="Enter the password"
           type="password"
           value={formData.password}
           onChange={handleChange}
           required
         />
+        </div>
 
         {page === "signup" && (
-          <>
-            <label htmlFor="confirmPassword" className="block -mb-3">
+          <div>
+            <label htmlFor="confirmPassword" className="block ">
               Confirm Password
             </label>
             <input
               id="confirmPassword"
-              className="rounded-md bg-[#1E293B] border border-[#334155] leading-10 pl-2"
+              className="rounded-md bg-[#1E293B] border border-[#334155] leading-10 pl-2 w-full"
               placeholder="Re-enter the password"
               type="password"
               value={formData.confirmPassword}
               onChange={handleChange}
               required
             />
-          </>
+          </div>
         )}
         <button
           type="submit"
