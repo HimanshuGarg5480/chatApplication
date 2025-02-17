@@ -1,3 +1,4 @@
+import Conversation from "../model/conversation.model.js";
 import Invitation from "../model/invitation.model.js";
 
  const sendInvitation = async (req, res) => {
@@ -6,13 +7,13 @@ import Invitation from "../model/invitation.model.js";
     const senderId = req.user.id; // Assuming `req.user` contains authenticated user info
 
     if (receiverId === senderId) {
-      return res.status(400).json({ message: "You cannot invite yourself." });
+      return res.status(400).json({ error: "You cannot invite yourself." });
     }
 
     // Check if an invitation already exists
     const existingInvitation = await Invitation.findOne({ sender: senderId, receiver: receiverId });
     if (existingInvitation) {
-      return res.status(400).json({ message: "Invitation already sent." });
+      return res.status(400).json({ error: "Invitation already sent." });
     }
 
     const invitation = new Invitation({ sender: senderId, receiver: receiverId });
@@ -30,7 +31,7 @@ import Invitation from "../model/invitation.model.js";
   
       const invitation = await Invitation.findById(invitationId);
       if (!invitation || invitation.status !== "pending") {
-        return res.status(404).json({ message: "Invitation not found or already responded." });
+        return res.status(404).json({ error: "Invitation not found or already responded." });
       }
   
       invitation.status = "accepted";
@@ -54,7 +55,7 @@ import Invitation from "../model/invitation.model.js";
   
       const invitation = await Invitation.findById(invitationId);
       if (!invitation || invitation.status !== "pending") {
-        return res.status(404).json({ message: "Invitation not found or already responded." });
+        return res.status(404).json({ error: "Invitation not found or already responded." });
       }
   
       invitation.status = "declined";

@@ -19,13 +19,11 @@ export default function UserSearchPopup() {
 
   const getSearchUser = async () => {
     try {
-      const response = await sendRequest(
-        `/server/v1/api/user/search?name=${searchTerm}`,
-        "GET"
+      const response = await fetch(
+        `/server/v1/api/user/search?name=${searchTerm}`
       );
-
-      console.log(response);
-      setSearchedUser(response);
+      const data = await response.json();
+      setSearchedUser(data);
     } catch (error) {
       console.log("error while serching the user", error);
     }
@@ -34,7 +32,7 @@ export default function UserSearchPopup() {
   const handleInvitationRequest = async (user) => {
     try {
       await sendRequest(`/server/v1/api/invitations/${user._id}/send`, "POST");
-      notifySuccess("request send")
+      notifySuccess("request send");
     } catch (error) {
       console.log("error while send invitation to the user", error);
       notifyError(error.message);
