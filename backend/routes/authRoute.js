@@ -6,6 +6,7 @@ import {
   getUserProfile,
   authCheck,
   updateProfile,
+  getUsersByName,
 } from "../controller/userController.js";
 import protectRoute from "../middleware/protectRoute.js";
 import { upload } from "../middleware/multer.js";
@@ -23,5 +24,5 @@ router.post(
 );
 router.get("/profile", getUserProfile);
 router.get("/authcheck", protectRoute, authCheck);
-
+router.get("/search",protectRoute, getUsersByName);
 export default router;

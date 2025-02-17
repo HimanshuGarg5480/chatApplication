@@ -1,4 +1,5 @@
 import User from "../model/user.model.js";
+import Conversation from "../model/conversation.model.js";
 import bcrypt from "bcrypt";
 import generateTokenAndSetCookie from "../utils/generateToken.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
@@ -151,6 +152,38 @@ const updateProfile = async (req, res) => {
   }
 };
 
+const getUsersByName = async (req, res) => {
+  try {
+    const { name } = req.query;
+    const searchingUserId = req.user.id; // Assuming req.user contains the authenticated user
+
+    // Find conversations where the searching user is a participant
+    const conversations = await Conversation.find({
+      participants: searchingUserId,
+    });
+
+    // Extract user IDs of participants in those conversations (excluding the searching user)
+    const participants = new Set(
+      conversations.flatMap((conv) =>
+        conv.participants.map((id) => id.toString())
+      )
+    );
+
+    // Find users by name who are NOT in conversations with the searching user
+    const users = await User.find({
+      _id: { $nin: Array.from(participants) }, // Exclude users in conversation
+      username: { $regex: `^${name}`, $options: "i" }, // Search by name
+    })
+      .select("-password")
+      .limit(10);
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error in getUsersByName:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export {
   signupUser,
   loginUser,
@@ -158,4 +191,5 @@ export {
   getUserProfile,
   authCheck,
   updateProfile,
+  getUsersByName,
 };

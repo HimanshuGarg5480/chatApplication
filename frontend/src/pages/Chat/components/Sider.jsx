@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaChevronDown } from "react-icons/fa";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import { IoSearchOutline } from "react-icons/io5";
@@ -6,17 +7,49 @@ import { MdNotificationAdd } from "react-icons/md";
 import { useSelector, useDispatch } from "react-redux";
 import defaultUserPic from "../../../assets/defaultUserPic.jpg";
 import { showProfile } from "../../../redux/features/user/ProfileSlice";
-import { notifyError } from "../../../components/Error";
+import { notifyError, notifySuccess } from "../../../components/Error";
+import {
+  toggleNotification,
+  toggleSearch,
+} from "../../../redux/features/uiSlice/UiSlice";
+import { clearUser } from "../../../redux/features/user/userSlice";
 
 const UserBio = ({ user }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const handleToggleProfile = () => {
     dispatch(showProfile());
+  };
+
+  const handleToggleSerch = () => {
+    dispatch(toggleSearch());
+  };
+
+  const handleToggleNotification = () => {
+    dispatch(toggleNotification());
+  };
+  const handleLogOut = async () => {
+    try {
+      const response = await fetch("/server/v1/api/user/logout", {
+        method: "POST",
+      });
+      if (response.ok) {
+        dispatch(clearUser());
+        navigate("/login");
+        notifySuccess("Logged out successfully");
+      }
+    } catch (error) {
+      console.error(err);
+      notifyError("Failed to logout");
+    }
   };
   return (
     <div className="bg-[#0F172A] border-b-[#1E293B] border-b-2 p-2">
       <div className="flex gap-3 items-center px-2">
-        <div className="text-2xl cursor-pointer hover:text-blue-300 rounded-md p-1">
+        <div
+          className="text-2xl cursor-pointer hover:text-blue-300 rounded-md p-1"
+          onClick={handleLogOut}
+        >
           <RiLogoutBoxLine />
         </div>
         <div className="flex gap-2 items-center">
@@ -27,21 +60,27 @@ const UserBio = ({ user }) => {
               alt=""
             />
           </div>
-          <div className="flex gap-1 cursor-pointer hover:text-blue-300">
+          <div
+            className="flex gap-1 cursor-pointer hover:text-blue-300"
+            onClick={handleToggleProfile}
+          >
             <div>{user.username}</div>
-            <div
-              className="text-xs flex items-center"
-              onClick={handleToggleProfile}
-            >
+            <div className="text-xs flex items-center">
               <FaChevronDown />
             </div>
           </div>
         </div>
         <div className="flex gap-2 ml-auto text-2xl">
-          <div className="cursor-pointer hover:text-blue-300 rounded-md p-1">
+          <div
+            className="cursor-pointer hover:text-blue-300 rounded-md p-1"
+            onClick={handleToggleSerch}
+          >
             <IoSearchOutline />
           </div>
-          <div className="cursor-pointer hover:text-blue-300 rounded-md p-1">
+          <div
+            className="cursor-pointer hover:text-blue-300 rounded-md p-1"
+            onClick={handleToggleNotification}
+          >
             <MdNotificationAdd />
           </div>
         </div>
@@ -88,7 +127,7 @@ const UserList = () => {
 const Sider = () => {
   const { user } = useSelector((state) => state.user);
   return (
-    <div className="hidden sm:flex sm:flex-col h-screen w-[40rem] bg-[#171f34] border-r-[#1E293B] border-r-2 text-slate-50">
+    <div className="flex flex-col h-full bg-[#171f34] border-r-[#1E293B] border-r-2 text-slate-50">
       <UserBio user={user} />
       <div className="bg-[#171f34] p-1 border-b-[#1E293B] border-b-2 text-lg text-slate-300 font-semibold">
         Conversations

@@ -27,7 +27,7 @@ const Profile = () => {
     dispatch(closeProfile());
   };
   return (
-    <div className="absolute h-screen w-screen bg-black top-0 left-0 bg-opacity-60 flex justify-center items-center">
+    <div className="absolute h-screen w-screen z-50 bg-black top-0 left-0 bg-opacity-60 flex justify-center items-center">
       <div className="overflow-hidden rounded-xl border-2 border-gray-800 bg-gray-900 w-full sm:w-[70%] shadow-lg shadow-black">
         <div className="min-h-[8vh] bg-grey-100 bg-gray-700 sm:min-h-[10vh] md:min-h-[14vh] bg-pattern-banner bg-cover bg-no-repeat bg-center">
           <div className="flex justify-end pr-5 pt-5 text-gray-300 cursor-pointer hover:text-gray-200" onClick={handleToggleProfile}>
