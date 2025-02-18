@@ -4,8 +4,10 @@ import Sider from "./components/Sider";
 import { useSelector } from "react-redux";
 import NotificationSider from "./components/NotificationSider";
 import UserSearchPopup from "./components/UserSearchPopup";
+import { useWebSocket } from "../../hooks/useWebSocket";
 
 const ChatPage = () => {
+  const { socket } = useWebSocket();
   let { isVisible } = useSelector((state) => state.profileVisibility);
 
   return (

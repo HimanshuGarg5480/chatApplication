@@ -1,7 +1,8 @@
 import Conversation from "../model/conversation.model.js";
 import Message from "../model/message.model.js";
-import { getRecipientSocketId, io } from "../socket/socket.js";
 import { v2 as cloudinary } from "cloudinary";
+import { getRecipientSocketId } from "../socket/utils.js";
+import { io } from "../server.js";
 
 async function sendMessage(req, res) {
 	try {

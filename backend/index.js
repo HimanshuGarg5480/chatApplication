@@ -1,6 +1,6 @@
 import { config } from "dotenv";
 import connectDB from "./db/connectDB.js";
-import { app, server } from "./socket/socket.js";
+import { app, server } from "./server.js";
 import authRouter from "./routes/authRoute.js";
 import messageRouter from "./routes/messageRoute.js";
 import invitationRouter from "./routes/invitationRoute.js";
