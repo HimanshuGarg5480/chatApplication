@@ -25,6 +25,16 @@ import Invitation from "../model/invitation.model.js";
   }
 };
 
+const getInvitation = async (req, res) => {
+  try {
+    const userId = req.user.id; // Assuming `req.user` contains authenticated user info
+    const invitations = await Invitation.find({ receiver: userId, status: "pending" });
+    res.status(200).json(invitations);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
  const acceptInvitation = async (req, res) => {
     try {
       const { invitationId } = req.body;
@@ -68,4 +78,4 @@ import Invitation from "../model/invitation.model.js";
   };
   
 
-  export {acceptInvitation,sendInvitation,declineInvitation};
+  export {acceptInvitation,sendInvitation,declineInvitation,getInvitation};

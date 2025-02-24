@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RxCross1 } from "react-icons/rx";
 import { IoCheckmarkOutline } from "react-icons/io5";
 import { toggleNotification } from "../../../redux/features/uiSlice/UiSlice";
+import { notifyError } from "../../../components/Error";
 
 const NotificationSider = () => {
   let dispatch = useDispatch();
@@ -16,6 +17,23 @@ const NotificationSider = () => {
   const handleToggleNotification = () => {
     dispatch(toggleNotification());
   };
+
+  useEffect(() => {
+    const getNotifications = async () => {
+      const res = await fetch("/server/v1/api/invitations/");
+      const data = await res.json();
+      console.log(data);
+      if (res.ok) {
+        setNotifications(data);
+      }
+    };
+    try {
+      getNotifications();
+    } catch (error) {
+      notifyError("server error");
+      console.log("notification error", error);
+    }
+  }, []);
 
   return (
     <div
@@ -46,7 +64,10 @@ const NotificationSider = () => {
         //     ✕
         //   </div>
         // </div>
-        <div key={index} className="overflow-y-auto custom-scrollbar bg-[#0F172A] h-full">
+        <div
+          key={index}
+          className="overflow-y-auto custom-scrollbar bg-[#0F172A] h-full"
+        >
           <div className="flex gap-3 items-center justify-between p-2 border-[#1E293B] border-b-2 border-t-2">
             <div className="flex gap-3 items-center">
               <div className="bg-slate-700 border-white border-2 w-12 h-12 rounded-full overflow-hidden">
