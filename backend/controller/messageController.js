@@ -3,6 +3,7 @@ import Message from "../model/message.model.js";
 import { v2 as cloudinary } from "cloudinary";
 import { getRecipientSocketId } from "../socket/utils.js";
 import { io } from "../server.js";
+import User from "../model/user.model.js";
 
 async function sendMessage(req, res) {
 	try {
@@ -82,18 +83,28 @@ async function getMessages(req, res) {
 
 async function getConversations(req, res) {
 	const userId = req.user._id;
+	const { search } = req.query;
 	try {
-		const conversations = await Conversation.find({ participants: userId }).populate({
+		let conversations = await Conversation.find({
+			participants: userId,
+			participants: {
+				$in: await User.find({
+					username: { $regex: `^${search}`, $options: "i" }
+				}).distinct("_id")
+			}
+		}).populate({
 			path: "participants",
-			select: "username profilePic id",
+			select: "username profilePic id"
 		});
 		
-			// remove the current user from the participants array
+		
+		// remove the current user from the participants array
 		conversations.forEach((conversation) => {
 			conversation.participants = conversation.participants.filter(
 				(participant) => participant._id.toString() !== userId.toString()
 			);
 		});
+
 		res.status(200).json(conversations);
 	} catch (error) {
 		res.status(500).json({ error: error.message });

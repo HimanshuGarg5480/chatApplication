@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaChevronDown } from "react-icons/fa";
 import { RiLogoutBoxLine } from "react-icons/ri";
+import { RiUserAddFill } from "react-icons/ri";
 import { IoSearchOutline } from "react-icons/io5";
 import { MdNotificationAdd } from "react-icons/md";
 import { useSelector, useDispatch } from "react-redux";
@@ -75,7 +76,7 @@ const UserBio = ({ user }) => {
             className="cursor-pointer hover:text-blue-300 rounded-md p-1"
             onClick={handleToggleSerch}
           >
-            <IoSearchOutline />
+            <RiUserAddFill />
           </div>
           <div
             className="cursor-pointer hover:text-blue-300 rounded-md p-1"
@@ -91,35 +92,65 @@ const UserBio = ({ user }) => {
 
 const UserList = () => {
   const [conversation, setConverstion] = React.useState([]);
-  useEffect(() => {
-    const getConversations = async () => {
-      try {
-        const data = await fetch("/server/v1/api/message/conversations", {
+  const [searchUser, setSearchUSer] = React.useState("");
+
+  const getConversations = async () => {
+    try {
+      const data = await fetch(
+        `/server/v1/api/message/conversations?search=${searchUser}`,
+        {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("jwt")}`,
           },
-        });
-        setConverstion(data);
-      } catch (err) {
-        console.error(err);
-        notifyError("Failed to fetch conversations");
+        }
+      );
+      if (!data.ok) {
+        throw new Error("Failed to fetch conversations");
       }
-    };
+      const response = await data.json();
+      console.log(response);
+      setConverstion(response);
+    } catch (err) {
+      console.error(err);
+      notifyError("Failed to fetch conversations");
+    }
+  };
+  useEffect(() => {
     getConversations();
   }, []);
+
+  useEffect(() => {
+    getConversations();
+  }, [searchUser]);
+  
   return (
-    <div className="overflow-y-auto custom-scrollbar bg-[#0F172A] h-full">
-      <div className="flex gap-3 items-center p-2 border-b-[#1E293B] border-b-2">
-        <div className="bg-slate-700 border-white border-2 w-12 h-12 rounded-full overflow-hidden">
-          <img className="object-cover w-full h-full" alt="" />
+    <div className="overflow-y-auto custom-scrollbar bg-[#0F172A] h-full p-2">
+      <div className="flex gap-2 items-center p-2 border-b-[#1E293B] border-b-2">
+        <div className="text-3xl font-bold">
+          <IoSearchOutline />
         </div>
-        <div className="flex flex-col gap-1 cursor-pointer">
-          <div>user.username</div>
-          <div className="text-sm text-gray-500">lastMessage.text</div>
-        </div>
+        <input
+          type="text"
+          className="w-full p-1 bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Search..."
+          value={searchUser}
+          onChange={(e) => setSearchUSer(e.target.value)}
+        />
       </div>
+      {conversation.map((user) => (
+        <div className="flex gap-2 items-center p-2 border-b-[#1E293B] border-b-2 cursor-pointer hover:bg-[#1E293B]">
+          <div className="bg-slate-700 border-white border-2 w-12 h-12 rounded-full overflow-hidden">
+            <img
+              className="object-cover w-full h-full"
+              src={user?.participants[0]?.profilePic || defaultUserPic}
+              alt=""
+            />
+          </div>
+          <div>{user?.participants[0]?.username}</div>
+        </div>
+      ))}
     </div>
   );
 };
